@@ -1,0 +1,62 @@
+--------------------------CLI-------------------------------------------------
+connect to an instance and then install cli
+sudo yum update -y
+sudo yum install -y unzip curl
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+aws sts get-caller-identity             #if this is shows error fix IAM role
+
+-------------------------KUBECTL----------------------------------------------
+
+then install kubectl 
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+
+--------------------------EKSCTL-----------------------------------------------
+
+curl -sLO https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz
+tar -xzf eksctl_Linux_amd64.tar.gz
+sudo mv eksctl /usr/local/bin/
+
+eksctl version
+
+-------------------------CLUSTER CREATION---------------------------------------
+
+eksctl create cluster \
+  --name demo-cluster \
+  --region us-east-1 \
+  --nodegroup-name demo-ng \
+  --node-type t3.micro \
+  --nodes 1
+
+example
+# this will create a cluster with one node grup and 2 nodes in
+
+eksctl create cluster \
+  --name rajesh \
+  --region us-east-1 \
+  --nodegroup-name nodegroup1 \
+  --node-type t3.small \
+  --nodes 2 \
+  --managed
+
+
+
+to add more node increase node count ot add more node groups with this
+
+eksctl create nodegroup \
+  --cluster rajesh \
+  --region us-east-1 \
+  --name nodegroup2 \
+  --node-type t3.small \
+  --nodes 2 \
+  --managed
+
+after use use this to delete
+
+eksctl delete cluster --name rajesh --region us-east-1
