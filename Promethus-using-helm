@@ -1,0 +1,50 @@
+---------------------------------INFO----------------------------------------------
+
+#check out more details in here 
+
+https://medium.com/@veerababu.narni232/deployment-of-prometheus-and-grafana-using-helm-in-eks-cluster-22caee18a872
+
+#create a cluster and nodegroup 
+
+-----------------------------------INSTALL HELM-------------------------------------
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+#now add stable chart for local client
+
+helm repo add stable https://charts.helm.sh/stable
+
+----------------------------------PROMETHUS------------------------------------------
+
+#add promethus repo in helm using this command 
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#it show repo added
+
+#create a namespace by name  prometheus and i nstall othe required
+
+kubectl create namespace prometheus
+helm install stable prometheus-community/kube-prometheus-stack -n prometheus
+
+#now check pods in promethus
+kubectl get pods -n prometheus
+
+#now edit service to access it externally
+
+kubectl get svc -n prometheus
+
+#change into node port here and you can see ui ti see panel
+kubectl edit svc stable-kube-prometheus-sta-prometheus -n prometheus
+
+#now edit LoadBalancer or NodePort in here
+kubectl edit svc stable-grafana -n prometheus
+
+now use this to get secrets
+kubectl get secret --namespace prometheus stable-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+
+
+
+
