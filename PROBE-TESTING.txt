@@ -1,0 +1,69 @@
+use this .yml to test probes
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: app
+        image: nginx
+        ports:
+        - containerPort: 80
+
+        # 1️⃣ STARTUP PROBE
+        # App gets time to boot. Liveness & readiness are DISABLED until this passes.
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          failureThreshold: 30   # 30 × 5s = 150s max startup time
+          periodSeconds: 5
+
+        # 2️⃣ READINESS PROBE
+        # Controls traffic. Pod removed from Service if this fails.
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 0
+          periodSeconds: 5
+          failureThreshold: 3
+
+        # 3️⃣ LIVENESS PROBE
+        # If this fails → pod is RESTARTED
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          failureThreshold: 3
+
+
+TO TEST
+
+deploy and get pods
+kubectl apply -f probe-complete-demo.yaml
+kubectl get pods
+
+TEST READINESS
+and after break traffic using thtis command
+
+kubectl exec -it <pod-name> -- rm /usr/share/nginx/html/index.html
+
+ TEST LIVENESS
+
+kubectl exec -it <pod-name> -- kill 1
+
+
+AFTER EXEC GET ENDPOINTS TO SEE RESULTS
